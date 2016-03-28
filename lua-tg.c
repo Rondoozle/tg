@@ -692,6 +692,7 @@ enum lua_query_type {
   lq_chat_set_photo,
   lq_set_profile_photo,
   lq_set_profile_name,
+  lq_set_profile_username,
   lq_send_video,
   lq_send_text,
   lq_reply,
@@ -1364,8 +1365,12 @@ void lua_do_all (void) {
       tgl_do_set_profile_photo (TLS, lua_ptr[p + 1].str, lua_empty_cb, lua_ptr[p].ptr);
       p += 2;
       break;
-    case lq_set_profile_name:
-      tgl_do_set_profile_name (TLS, LUA_STR_ARG (p + 1), LUA_STR_ARG (p + 2), lua_user_cb, lua_ptr[p].ptr);
+   case lq_set_profile_username:
+      tgl_do_set_username (TLS, lua_ptr[p + 1].str, strlen(lua_ptr[p + 1].str), lua_user_cb, lua_ptr[p].ptr);
+      p += 2;
+      break;
+   case lq_set_profile_name:
+      tgl_do_set_profile_name (TLS, lua_ptr[p + 1].str,  strlen(lua_ptr[p + 1].str),lua_ptr[p + 2].str, strlen(lua_ptr[p + 2].str), lua_user_cb, lua_ptr[p].ptr);
       p += 3;
       break;
     case lq_create_secret_chat:
@@ -1589,7 +1594,8 @@ struct lua_function functions[] = {
   {"resolve_username", lq_resolve_username, { lfp_string, lfp_none }},
   {"mark_read", lq_mark_read, { lfp_peer, lfp_none }},
   {"set_profile_photo", lq_set_profile_photo, { lfp_string, lfp_none }},
-  {"set_profile_name", lq_set_profile_name, { lfp_string, lfp_none }},
+  {"set_profile_name", lq_set_profile_name, { lfp_string,lfp_string, lfp_none }},
+  {"set_profile_username", lq_set_profile_username, { lfp_string, lfp_none }},
   {"create_secret_chat", lq_create_secret_chat, { lfp_user, lfp_none }},
   {"create_group_chat", lq_create_group_chat, { lfp_user, lfp_string, lfp_none }},
   {"delete_msg", lq_delete_msg, { lfp_msg, lfp_none }},
