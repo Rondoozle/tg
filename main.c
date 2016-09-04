@@ -995,7 +995,6 @@ int main (int argc, char **argv) {
   #else
   tgl_set_rsa_key (TLS, "/etc/" PROG_NAME "/server.pub");
   #endif
-  tgl_set_rsa_key (TLS, "tg-server.pub");
 
   tgl_set_rsa_key_direct (TLS, tglmp_get_default_e (), tglmp_get_default_key_len (), tglmp_get_default_key ());
 
