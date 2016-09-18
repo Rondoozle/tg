@@ -714,6 +714,8 @@ enum lua_query_type {
   lq_resolve_username,
   lq_mark_read,
   lq_create_secret_chat,
+  lq_block_user,
+  lq_unblock_user,
   lq_create_group_chat,
   lq_send_audio,
   lq_send_document,
@@ -1383,6 +1385,16 @@ void lua_do_all (void) {
       tgl_do_create_secret_chat (TLS, lua_ptr[p + 1].peer_id, lua_secret_chat_cb, lua_ptr[p].ptr);
       p += 2;
       break;
+	case lq_block_user:
+		//tgl_do_block_user(TLS, lua_ptr[p + 1].peer_id, lua_empty_cb, lua_ptr[p].ptr);
+		tgl_do_block_user(TLS, lua_ptr[p + 1].peer_id, lua_empty_cb, lua_ptr[p].ptr);
+	  p += 2;
+	  break;
+	case lq_unblock_user:
+		//tgl_do_block_user(TLS, lua_ptr[p + 1].peer_id, lua_empty_cb, lua_ptr[p].ptr);
+		tgl_do_unblock_user(TLS, lua_ptr[p + 1].peer_id, lua_empty_cb, lua_ptr[p].ptr);
+		p += 2;
+		break;
     case lq_create_group_chat:
       tgl_do_create_group_chat (TLS, 1, &lua_ptr[p + 1].peer_id, LUA_STR_ARG (p + 2), lua_empty_cb, lua_ptr[p].ptr);
       p += 3;
@@ -1480,7 +1492,7 @@ void lua_do_all (void) {
       p += 2;
       break;
     //case lq_channel_unblock:
-      //tgl_do_channel_set_admin (TLS, lua_ptr[p + 1].peer_id, lua_ptr[p + 2].peer_id, 0, lua_empty_cb, lua_ptr[p].ptr);
+      //tgl_do_channel_unblock_user (TLS, lua_ptr[p + 1].peer_id, lua_ptr[p + 2].peer_id, 0, lua_empty_cb, lua_ptr[p].ptr);
       //p += 3;
       //break;
     case lq_rename_channel:
@@ -1603,6 +1615,8 @@ struct lua_function functions[] = {
   {"set_profile_name", lq_set_profile_name, { lfp_string,lfp_string, lfp_none }},
   {"set_profile_username", lq_set_profile_username, { lfp_string, lfp_none }},
   {"create_secret_chat", lq_create_secret_chat, { lfp_user, lfp_none }},
+  { "block_user", lq_block_user, { lfp_user, lfp_none } },
+  { "unblock_user", lq_unblock_user, { lfp_user, lfp_none } },
   {"create_group_chat", lq_create_group_chat, { lfp_user, lfp_string, lfp_none }},
   {"delete_msg", lq_delete_msg, { lfp_msg, lfp_none }},
   {"restore_msg", lq_restore_msg, { lfp_positive_number, lfp_none }},
