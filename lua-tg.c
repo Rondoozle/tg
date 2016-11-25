@@ -1,32 +1,3 @@
-/*
-    This file is part of telegram-cli.
-
-    Telegram-cli is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 2 of the License, or
-    (at your option) any later version.
-
-    Telegram-cli is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
-
-    You should have received a copy of the GNU General Public License
-    along with this telegram-cli.  If not, see <http://www.gnu.org/licenses/>.
-
-    Copyright Vitaly Valtman 2013-2015
-*/
-
-/*
-With the support of the HTML format 
-( msg & Reply )
-
-*******************
-*   ReZa Hextor   *
-*  @HEXTOR_CH     *
-*******************
-*/
-
 #ifdef HAVE_CONFIG_H
 #include "config.h"
 #endif
@@ -699,7 +670,7 @@ enum lua_query_type {
   lq_send_typing_abort,
   lq_rename_chat,
   lq_send_photo,
-  lq_photo_caption,
+  lq_send_photo2,
   lq_chat_set_photo,
   lq_set_profile_photo,
   lq_set_profile_name,
@@ -707,6 +678,11 @@ enum lua_query_type {
   lq_send_video,
   lq_send_text,
   lq_reply,
+  lq_reply_audio,
+  lq_reply_document,
+  lq_reply_file,
+  lq_reply_photo,
+  lq_reply_video,
   lq_fwd,
   lq_fwd_media,
   lq_load_photo,
@@ -1257,8 +1233,8 @@ void lua_do_all (void) {
       tgl_do_send_document (TLS, lua_ptr[p + 1].peer_id, lua_ptr[p + 2].str, NULL, 0, TGL_SEND_MSG_FLAG_DOCUMENT_PHOTO, lua_msg_cb, lua_ptr[p].ptr);
       p += 3;
       break;
-	case lq_photo_caption:
-	   tgl_do_send_document (TLS, lua_ptr[p + 1].peer_id, lua_ptr[p + 2].str, lua_ptr[p + 3].str, 200, TGL_SEND_MSG_FLAG_DOCUMENT_PHOTO, lua_msg_cb, lua_ptr[p].ptr);
+    case lq_send_photo2:
+      tgl_do_send_document (TLS, lua_ptr[p + 1].peer_id, lua_ptr[p + 2].str, lua_ptr[p + 3].str, strlen(lua_ptr[p + 3].str), TGL_SEND_MSG_FLAG_DOCUMENT_PHOTO, lua_msg_cb, lua_ptr[p].ptr);
       p += 4;
       break;
     case lq_send_video:
@@ -1323,6 +1299,26 @@ void lua_do_all (void) {
       break;
     case lq_reply:
       tgl_do_reply_message (TLS, &lua_ptr[p + 1].msg_id, LUA_STR_ARG (p + 2), TGLMF_HTML, lua_msg_cb, lua_ptr[p].ptr);
+      p += 3;
+      break;
+      case lq_reply_audio:
+      tgl_do_reply_document (TLS, &lua_ptr[p + 1].msg_id, lua_ptr[p + 2].str, NULL, 0, TGL_SEND_MSG_FLAG_DOCUMENT_AUDIO, lua_msg_cb, lua_ptr[p].ptr);
+      p += 3;
+      break;
+    case lq_reply_document:
+      tgl_do_reply_document (TLS, &lua_ptr[p + 1].msg_id, lua_ptr[p + 2].str, NULL, 0, 0, lua_msg_cb, lua_ptr[p].ptr);
+      p += 3;
+      break;
+    case lq_reply_file:
+      tgl_do_reply_document (TLS, &lua_ptr[p + 1].msg_id, lua_ptr[p + 2].str, NULL, 0, TGL_SEND_MSG_FLAG_DOCUMENT_AUTO, lua_msg_cb, lua_ptr[p].ptr);
+      p += 3;
+      break;
+    case lq_reply_photo:
+      tgl_do_reply_document (TLS, &lua_ptr[p + 1].msg_id, lua_ptr[p + 2].str, NULL, 0, TGL_SEND_MSG_FLAG_DOCUMENT_PHOTO, lua_msg_cb, lua_ptr[p].ptr);
+      p += 3;
+      break;
+    case lq_reply_video:
+      tgl_do_reply_document (TLS, &lua_ptr[p + 1].msg_id, lua_ptr[p + 2].str, NULL, 0, TGL_SEND_MSG_FLAG_DOCUMENT_VIDEO, lua_msg_cb, lua_ptr[p].ptr);
       p += 3;
       break;
     case lq_fwd:
@@ -1586,7 +1582,7 @@ struct lua_function functions[] = {
   {"send_typing", lq_send_typing, { lfp_peer, lfp_none }},
   {"send_typing_abort", lq_send_typing_abort, { lfp_peer, lfp_none }},
   {"send_photo", lq_send_photo, { lfp_peer, lfp_string, lfp_none }},
-  {"photo_caption", lq_send_photo, { lfp_peer, lfp_string,lfp_string, lfp_none }},
+  {"send_photo2", lq_send_photo2, { lfp_peer, lfp_string, lfp_string, lfp_none }},
   {"send_video", lq_send_video, { lfp_peer, lfp_string, lfp_none }},
   {"send_audio", lq_send_audio, { lfp_peer, lfp_string, lfp_none }},
   {"send_document", lq_send_document, { lfp_peer, lfp_string, lfp_none }},
@@ -1600,6 +1596,11 @@ struct lua_function functions[] = {
   {"load_document", lq_load_document, { lfp_msg, lfp_none }},
   {"load_document_thumb", lq_load_document_thumb, { lfp_msg, lfp_none }},
   {"reply_msg", lq_reply, { lfp_msg, lfp_string, lfp_none }},
+  {"reply_file", lq_reply_file, {lfp_msg, lfp_string, lfp_none}},
+  {"reply_audio", lq_send_audio, {lfp_msg, lfp_string, lfp_none}},
+  {"reply_document", lq_reply_document, {lfp_msg, lfp_string, lfp_none}},
+  {"reply_photo", lq_reply_photo, {lfp_msg, lfp_string, lfp_none}},
+  {"reply_video", lq_reply_video, {lfp_msg, lfp_string, lfp_none}},
   {"fwd_msg", lq_fwd, { lfp_peer, lfp_msg, lfp_none }},
   {"fwd_media", lq_fwd_media, { lfp_peer, lfp_msg, lfp_none }},
   {"chat_info", lq_chat_info, { lfp_chat, lfp_none }},
