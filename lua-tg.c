@@ -752,7 +752,9 @@ enum lua_query_type {
   lq_channel_set_username,
   lq_channel_set_admin,
   lq_channel_set_mod,
-  lq_channel_demote
+  lq_channel_demote,
+  lq_block_user,
+  lq_unblock_user
 };
 
 struct lua_query_extra {
@@ -1510,6 +1512,14 @@ void lua_do_all (void) {
 	case lq_channel_demote:
       tgl_do_channel_set_admin (TLS, lua_ptr[p + 1].peer_id, lua_ptr[p + 2].peer_id, 0, lua_empty_cb, lua_ptr[p].ptr);
       p += 3;
+      break
+       case lq_block_user:
+      tgl_do_block_user (TLS, lua_ptr[p + 1].peer_id, lua_empty_cb, lua_ptr[p].ptr);
+      p += 2;
+      break;
+      case lq_unblock_user:
+     tgl_do_unblock_user (TLS, lua_ptr[p + 1].peer_id, lua_empty_cb, lua_ptr[p].ptr);
+      p += 2;
       break;
   /*
   lq_delete_msg,
@@ -1636,6 +1646,8 @@ struct lua_function functions[] = {
   {"channel_set_admin", lq_channel_set_admin, { lfp_channel, lfp_peer, lfp_none }},
   {"channel_set_mod", lq_channel_set_mod, { lfp_channel, lfp_peer, lfp_none }},
   {"channel_demote", lq_channel_demote, { lfp_channel, lfp_peer, lfp_none }},
+  {"block_user", lq_block_user, { lfp_user, lfp_none }},
+  {"unblock_user", lq_unblock_user, { lfp_user, lfp_none }},
   { 0, 0, { lfp_none}}
 };
 
